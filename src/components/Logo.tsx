@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logoMark from "../../public/logo-mark.png";
+import logoMark from "../../public/logo-mark.webp";
 
 export function LogoMark({ size = 64 }: { size?: number }) {
   return (

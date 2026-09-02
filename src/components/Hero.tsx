@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import logoFull from "../../public/logo-full.png";
+import logoFull from "../../public/logo-full.webp";
 
 export default function Hero() {
   return (
