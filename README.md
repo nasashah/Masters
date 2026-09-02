@@ -1,8 +1,9 @@
 # Masters Barber Lounge
 
-A dark, premium Next.js site for Masters Barber Lounge, built around
-sensory, unhurried copy: sanctuary, ritual, and personalized care rather
-than travel or booking-platform language.
+A dark, premium Next.js site for Masters Barber Lounge in Tucson, AZ,
+built around sensory, unhurried copy: sanctuary, ritual, and personalized
+care rather than travel or booking-platform language. Pages: Home, About,
+Services, Gallery, Menu, Blog, and Contact.
 
 ## Stack
 
