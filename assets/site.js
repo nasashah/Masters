@@ -127,7 +127,7 @@
 
     var wisps = [], lastW = 0;
     function reseed() {
-      var count = w < 700 ? 9 : 16;
+      var count = w < 700 ? 13 : 22;
       wisps.length = 0;
       for (var i = 0; i < count; i++) wisps.push(makeWisp(true));
       lastW = w;
@@ -156,8 +156,8 @@
       var yTip = pts[0].y, yTail = pts[n - 1].y;
       if (yTail - yTip < 1) return;
       var grd = bx.createLinearGradient(0, yTail, 0, yTip);
-      grd.addColorStop(0.00, "rgba(228,222,210," + (0.30 * amp).toFixed(4) + ")");
-      grd.addColorStop(0.42, "rgba(214,207,193," + (0.20 * amp).toFixed(4) + ")");
+      grd.addColorStop(0.00, "rgba(228,222,210," + (0.40 * amp).toFixed(4) + ")");
+      grd.addColorStop(0.42, "rgba(214,207,193," + (0.27 * amp).toFixed(4) + ")");
       grd.addColorStop(1.00, "rgba(188,180,166,0)");
 
       bx.beginPath();
@@ -172,7 +172,7 @@
       bx.beginPath();
       bx.moveTo(pts[0].x, pts[0].y);
       for (i = 1; i < n; i++) bx.lineTo(pts[i].x, pts[i].y);
-      bx.strokeStyle = "rgba(240,236,228," + (0.22 * amp).toFixed(4) + ")";
+      bx.strokeStyle = "rgba(240,236,228," + (0.30 * amp).toFixed(4) + ")";
       bx.lineWidth = Math.max(1, wisp.width * 0.32);
       bx.lineJoin = bx.lineCap = "round";
       bx.stroke();
