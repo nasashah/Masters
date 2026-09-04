@@ -117,7 +117,8 @@ h3{font-family:var(--serif);font-size:22px;color:#fff}
 .rating small{font-family:var(--caps);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.22em;color:var(--dim)}
 
 /* ---------- about ---------- */
-.about-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:64px;align-items:center}
+/* copy-only since the photos moved out: one centred column at a readable measure */
+.about-grid{display:grid;grid-template-columns:minmax(0,780px);justify-content:center;gap:64px;align-items:center}
 .about-pics{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .about-pics .frame:nth-child(2){margin-top:44px}
 .frame{overflow:hidden;border-radius:2px;border:1px solid rgba(185,155,103,.2);background:#171512;aspect-ratio:3/4}
