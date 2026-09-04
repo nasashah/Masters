@@ -58,54 +58,74 @@
     resize();
     window.addEventListener("resize", resize);
 
+    // soft warm-grey puff. kept dim on purpose: these composite normally
+    // (not additively), so overlap builds density instead of blowing out white
     var sprite = document.createElement("canvas"), S = 256;
     sprite.width = sprite.height = S;
     var sc = sprite.getContext("2d");
     var g = sc.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
-    g.addColorStop(0, "rgba(210,198,180,0.32)");
-    g.addColorStop(0.45, "rgba(186,176,160,0.12)");
-    g.addColorStop(1, "rgba(158,148,134,0)");
+    g.addColorStop(0.00, "rgba(212,202,186,0.30)");
+    g.addColorStop(0.32, "rgba(196,186,170,0.16)");
+    g.addColorStop(0.66, "rgba(174,164,150,0.055)");
+    g.addColorStop(1.00, "rgba(158,148,134,0)");
     sc.fillStyle = g; sc.fillRect(0, 0, S, S);
 
     function rand(a, b) { return a + Math.random() * (b - a); }
-    function seed(p, low) {
-      p.x = rand(-0.1, 1.1) * w;
-      p.y = low ? rand(h * 0.75, h * 1.15) : rand(-h * 0.1, h * 1.1);
-      p.r = rand(120, 340);
-      p.vy = -rand(6, 20) / 60;
-      p.drift = rand(-0.22, 0.22);
-      p.phase = rand(0, Math.PI * 2);
-      p.freq = rand(0.12, 0.34);
-      p.life = 0; p.span = rand(16, 34);
-      p.rot = rand(0, Math.PI * 2); p.spin = rand(-0.06, 0.06);
+
+    // layered sines standing in for curl noise: gives the horizontal shear
+    // that makes a column read as smoke rather than drifting blobs
+    function shear(x, y, t) {
+      return Math.sin(y * 0.0125 + t * 0.42) * 10 +
+             Math.sin(y * 0.0041 - t * 0.23) * 17 +
+             Math.cos(x * 0.0075 + y * 0.0060 - t * 0.31) * 8;
+    }
+
+    function seed(p, fromBottom) {
+      p.x = rand(-0.06, 1.06) * w;
+      // born below the fold so it always enters rising
+      p.y = fromBottom ? rand(h * 1.0, h * 1.28) : rand(h * 0.2, h * 1.2);
+      p.r = rand(58, 170);
+      p.vy = -rand(15, 34);            // px/sec, upward
+      p.buoy = rand(5, 14);            // upward acceleration (px/sec^2)
+      p.sway = rand(0.5, 1.5);         // how hard the shear field pushes it
+      p.stretch = rand(1.05, 1.55);    // vertical elongation -> tendrils
+      p.rot = rand(0, Math.PI * 2);
+      p.spin = rand(-0.11, 0.11);
+      p.life = 0; p.span = rand(9, 18);
       return p;
     }
-    var puffs = [];
-    for (var i = 0; i < 34; i++) puffs.push(seed({}, false));
+
+    var puffs = [], COUNT = w < 700 ? 34 : 58;
+    for (var i = 0; i < COUNT; i++) puffs.push(seed({}, false));
     puffs.forEach(function (p) { p.life = rand(0, p.span); });
 
-    var last = performance.now();
+    var last = performance.now(), clock = 0;
     function frame(now) {
       var dt = Math.min((now - last) / 1000, 0.05); last = now;
+      clock += dt;
       ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = "lighter";
       for (var i = 0; i < puffs.length; i++) {
         var p = puffs[i];
         p.life += dt;
-        if (p.life > p.span) seed(p, true);
-        p.y += p.vy * dt * 60;
-        p.x += (p.drift + Math.sin(p.life * p.freq + p.phase) * 0.5) * dt * 60;
+        if (p.life > p.span || p.y < -p.r * 2) { seed(p, true); continue; }
+
+        p.vy -= p.buoy * dt;                             // keeps accelerating up
+        p.y += p.vy * dt;
+        p.x += shear(p.x, p.y, clock) * p.sway * dt;
         p.rot += p.spin * dt;
+
         var t = p.life / p.span;
-        var size = p.r * (0.7 + t * 0.85);
-        ctx.globalAlpha = Math.sin(Math.PI * Math.min(t, 1)) * 0.5;
+        var size = p.r * (0.55 + t * 1.5);               // entrainment: grows as it rises
+        // thin out toward the top of the viewport so it dissipates instead of hazing everything
+        var height = Math.max(0, Math.min(1, (p.y / h) * 1.3));
+        ctx.globalAlpha = Math.sin(Math.PI * Math.min(t, 1)) * height;
+
         ctx.save();
         ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-        ctx.drawImage(sprite, -size / 2, -size / 2, size, size);
+        ctx.drawImage(sprite, -size / 2, -(size * p.stretch) / 2, size, size * p.stretch);
         ctx.restore();
       }
       ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
       raf = requestAnimationFrame(frame);
     }
     raf = requestAnimationFrame(frame);
