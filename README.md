@@ -1,31 +1,49 @@
-# Masters Barber Lounge
+# Masters Barber Lounge — website
 
-A dark, premium Next.js site for Masters Barber Lounge in Tucson, AZ,
-built around sensory, unhurried copy: sanctuary, ritual, and personalized
-care rather than travel or booking-platform language. Pages: Home, About,
-Services, Gallery, Menu, Blog, and Contact.
+Static site. No build step, no dependencies.
 
-## Stack
+## Deploy to Vercel
 
-- Next.js (App Router) + TypeScript
-- Tailwind CSS v4
-- Headline font: Caslon 540 Std, falling back to Libre Caslon Text
-- Body font: Proxima Nova, falling back to Inter
-- The printed menu (`public/masters-menu.pdf`) is rendered inline with
-  `pdfjs-dist` so it displays consistently across browsers, alongside an
-  accessible text price list
+1. vercel.com/new → drag this folder in (or `vercel --prod` from inside it).
+2. Framework preset: **Other**. Build command: none. Output directory: leave blank.
+3. Add your domain under Settings → Domains.
 
-## Getting Started
+`vercel.json` already sets clean URLs, asset caching, security headers, and
+redirects for /services, /privacy, /terms.
 
-```bash
-npm install
-npm run dev
-```
+## Routes
 
-Open [http://localhost:3000](http://localhost:3000) to view it.
+| URL                  | File                            |
+|----------------------|---------------------------------|
+| /                    | index.html                      |
+| /menu                | menu/index.html                 |
+| /privacy-policy      | privacy-policy/index.html       |
+| /terms-of-service    | terms-of-service/index.html     |
 
-## Build
+## Live Google reviews
 
-```bash
-npm run build
-```
+The reviews section is server-rendered with six real reviews, then upgraded to
+live Google data by `assets/site.js`, which calls the reviews proxy at:
+
+    https://masters-omega.vercel.app/api/reviews
+
+**Before launch:** add the site's domain to that proxy's `ALLOWED_ORIGINS`
+environment variable (comma-separated), otherwise the browser blocks the call
+and the page quietly falls back to the six static reviews.
+
+    ALLOWED_ORIGINS=https://mastersbarberlounge.store,https://www.mastersbarberlounge.store
+
+To point at a different endpoint, edit `data-endpoint` on the
+`.rev-grid` element in index.html.
+
+## Images
+
+Gallery and product photos load from mastersbarberlounge.com/wp-content/.
+If that WordPress site is taken down, download those images into /assets and
+update the `src` paths in index.html.
+
+## Editing content
+
+Everything is plain HTML — prices live in `menu/index.html` and in the
+services grid on `index.html` (keep them in sync). Hours are in the
+`.hours` list on index.html and in the JSON-LD block in the `<head>`.
